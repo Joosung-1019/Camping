@@ -41,6 +41,7 @@ export default function Home() {
   const [activeTags, setActiveTags] = useState([]);
   const [includeAllTypes, setIncludeAllTypes] = useState(false);
   const [selected, setSelected] = useState(null);
+  const [showMobileList, setShowMobileList] = useState(false);
 
   const toggleTag = useCallback((tagId) => {
     setActiveTags((prev) =>
@@ -93,7 +94,10 @@ export default function Home() {
     return list;
   }, [campsites, region, keyword, activeTags, sortByDistance, homeLocation]);
 
-  const handleSelect = useCallback((c) => setSelected(c), []);
+  const handleSelect = useCallback((c) => {
+    setSelected(c);
+    setShowMobileList(false);
+  }, []);
   const handleClose = useCallback(() => setSelected(null), []);
 
   return (
@@ -166,6 +170,38 @@ export default function Home() {
                 homeLocation={homeLocation}
                 onClose={handleClose}
               />
+            </div>
+          )}
+
+          {!selected && !showMobileList && (
+            <button
+              onClick={() => setShowMobileList(true)}
+              className="absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-zinc-900 px-5 py-2.5 text-sm font-medium text-white shadow-lg md:hidden"
+            >
+              📋 목록 보기 ({filtered.length}곳)
+            </button>
+          )}
+
+          {showMobileList && !selected && (
+            <div className="absolute inset-x-0 bottom-0 top-0 flex flex-col overflow-hidden bg-white md:hidden">
+              <div className="flex items-center justify-between border-b px-4 py-2">
+                <span className="font-semibold">캠핑장 목록 ({filtered.length}곳)</span>
+                <button
+                  onClick={() => setShowMobileList(false)}
+                  className="text-zinc-400 hover:text-zinc-700"
+                  aria-label="닫기"
+                >
+                  ✕
+                </button>
+              </div>
+              <div className="flex-1 overflow-y-auto">
+                <CampsiteList
+                  campsites={filtered}
+                  homeLocation={homeLocation}
+                  loading={loading}
+                  onSelect={handleSelect}
+                />
+              </div>
             </div>
           )}
         </div>
