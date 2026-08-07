@@ -191,6 +191,11 @@ export default function Home() {
     [campsites, customPins]
   );
 
+  const reviewedIds = useMemo(
+    () => new Set(reviews.map((r) => r.campsiteId).filter(Boolean)),
+    [reviews]
+  );
+
   const regions = useMemo(
     () => Array.from(new Set(campsites.map((c) => c.doNm).filter(Boolean))).sort(),
     [campsites]
@@ -313,6 +318,7 @@ export default function Home() {
             onSelect={handleSelect}
             pickingActive={pickingActive}
             onPick={handlePick}
+            reviewedIds={reviewedIds}
           />
 
           {selected && (
