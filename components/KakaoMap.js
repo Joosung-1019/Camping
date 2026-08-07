@@ -40,8 +40,8 @@ export default function KakaoMap({
   homeLocation,
   selected,
   onSelect,
-  pickingHome,
-  onPickHome,
+  pickingActive,
+  onPick,
 }) {
   const mapElRef = useRef(null);
   const mapRef = useRef(null);
@@ -71,8 +71,8 @@ export default function KakaoMap({
       mapRef.current,
       "click",
       (mouseEvent) => {
-        if (pickingHome) {
-          onPickHome({
+        if (pickingActive) {
+          onPick({
             lat: mouseEvent.latLng.getLat(),
             lng: mouseEvent.latLng.getLng(),
           });
@@ -80,7 +80,7 @@ export default function KakaoMap({
       }
     );
     return () => window.kakao.maps.event.removeListener(listener);
-  }, [loaded, pickingHome, onPickHome]);
+  }, [loaded, pickingActive, onPick]);
 
   useEffect(() => {
     if (!loaded || !mapRef.current) return;
@@ -90,7 +90,7 @@ export default function KakaoMap({
       const marker = new window.kakao.maps.Marker({
         position: new window.kakao.maps.LatLng(c.lat, c.lng),
         map: mapRef.current,
-        image: markerImage(isSelected ? "#f97316" : "#16a34a", isSelected ? 16 : 10),
+        image: markerImage(isSelected ? "#f97316" : "#16a34a", isSelected ? 22 : 15),
         zIndex: isSelected ? 100 : 1,
         title: c.name,
       });
@@ -141,7 +141,7 @@ export default function KakaoMap({
   return (
     <div
       ref={mapElRef}
-      className={`h-full w-full ${pickingHome ? "cursor-crosshair" : ""}`}
+      className={`h-full w-full ${pickingActive ? "cursor-crosshair" : ""}`}
       style={{ filter: "contrast(1.25) saturate(1.4) brightness(0.97)" }}
     />
   );

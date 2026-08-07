@@ -6,11 +6,12 @@
 - 캠핑장 데이터: 공공데이터포털 한국관광공사_고캠핑정보 조회서비스 (자동차야영장만 필터링)
 - 날씨: OpenWeatherMap
 - 자동차 이동시간: Tmap(SK Open API) 경로안내
+- 방문 기록/평점: Vercel Storage(Redis)
 - 배포: Vercel
 
 ## 1. API 키 발급받기
 
-아래 4개는 각각 무료로 발급받을 수 있고, 회원가입/키 발급은 직접 진행해주셔야 합니다.
+아래 5개는 각각 무료로 발급받을 수 있고, 회원가입/키 발급은 직접 진행해주셔야 합니다.
 
 ### ① 고캠핑 서비스키 (공공데이터포털)
 1. https://www.data.go.kr 회원가입 후 로그인
@@ -37,11 +38,18 @@
 3. 대시보드에서 발급된 **appKey** 복사
 4. `.env.local`의 `TMAP_APP_KEY`에 입력 (하루 1,000건 무료)
 
+### ⑤ Redis (방문 기록/평점 저장, Vercel Storage)
+1. https://vercel.com → 해당 프로젝트 → 왼쪽 메뉴 **Storage**
+2. **Create Database** → **Redis** 선택 → High Availability는 **None**으로, 무료(Free) 플랜 선택 후 생성
+3. 생성된 데이터베이스 → **Connect to Project**로 이 프로젝트에 연결 (Production/Preview/Development 모두 체크)
+4. 데이터베이스 페이지의 **Quickstart > .env.local** 탭에서 **Show secret**으로 `REDIS_URL` 값 확인 후 복사
+5. `.env.local`의 `REDIS_URL`에 입력
+
 ## 2. 로컬 실행
 
 ```bash
 cp .env.local.example .env.local
-# .env.local을 열어 위 4개 키를 채워넣기
+# .env.local을 열어 위 5개 키를 채워넣기
 
 npm install
 npm run dev
@@ -52,13 +60,15 @@ http://localhost:3000 접속 → 지도에 전국 오토캠핑장 마커가 표�
 - 상단 "내 위치 사용" 또는 "지도에서 집 선택"으로 우리집 위치 등록 (브라우저에 저장됨)
 - 마커 또는 목록 클릭 → 날씨/직선거리/자동차 이동시간/시설정보/캠핏 예약 링크 확인
 - 지역 드롭다운, 검색창, 거리순 정렬 동작 확인
+- 닉네임 설정 후 캠핑장 상세에서 "방문 기록" 별점/메모 저장, 헤더의 "내 기록"·"캠핑장 직접 추가" 동작 확인
 
 ## 3. Vercel 배포
 
 1. 이 프로젝트를 GitHub 레포지토리에 push
 2. https://vercel.com 가입/로그인 → GitHub 레포 Import
-3. 프로젝트 설정 > Environment Variables에 `.env.local`과 동일한 4개 키 등록
-   - `GOCAMPING_SERVICE_KEY`, `OPENWEATHER_API_KEY`, `NEXT_PUBLIC_KAKAO_MAP_APP_KEY`, `TMAP_APP_KEY`
+3. 프로젝트 설정 > Environment Variables에 `.env.local`과 동일한 5개 키 등록
+   - `GOCAMPING_SERVICE_KEY`, `OPENWEATHER_API_KEY`, `NEXT_PUBLIC_KAKAO_MAP_APP_KEY`, `TMAP_APP_KEY`, `REDIS_URL`
+   - (Storage를 프로젝트에 Connect 했다면 `REDIS_URL`은 이미 자동으로 등록되어 있을 수 있습니다)
 4. Deploy → 발급된 `https://xxx.vercel.app` URL로 폰/태블릿/PC 등 여러 기기에서 접속 가능
 5. 배포 후 카카오 디벨로퍼스 **플랫폼 > Web** 설정에 배포된 도메인을 추가해야 지도가 정상 동작합니다.
 

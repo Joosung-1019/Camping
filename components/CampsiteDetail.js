@@ -3,12 +3,21 @@
 import { useEffect, useMemo, useState } from "react";
 import { haversineKm, formatDistanceKm } from "@/lib/distance";
 import { getTagDef } from "@/lib/tags";
+import ReviewSection from "./ReviewSection";
 
 function todayKST() {
   return new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Seoul" });
 }
 
-export default function CampsiteDetail({ campsite, homeLocation, onClose }) {
+export default function CampsiteDetail({
+  campsite,
+  homeLocation,
+  onClose,
+  reviews,
+  nickname,
+  onRequestNickname,
+  onAddReview,
+}) {
   const [weather, setWeather] = useState(null);
   const [weatherError, setWeatherError] = useState(null);
   const loadingWeather = !weather && !weatherError;
@@ -198,6 +207,18 @@ export default function CampsiteDetail({ campsite, homeLocation, onClose }) {
           </p>
         )}
       </div>
+
+      <ReviewSection
+        campsiteId={campsite.id}
+        name={campsite.name}
+        addr={campsite.addr}
+        lat={campsite.lat}
+        lng={campsite.lng}
+        reviews={reviews}
+        nickname={nickname}
+        onRequestNickname={onRequestNickname}
+        onAddReview={onAddReview}
+      />
 
       {facts.length > 0 && (
         <div className="mt-3 text-sm">
