@@ -60,8 +60,6 @@ export default function Home() {
   const [showMobileList, setShowMobileList] = useState(false);
 
   const [showAddCustom, setShowAddCustom] = useState(false);
-  const [pickingCustom, setPickingCustom] = useState(false);
-  const [pickedCustomLocation, setPickedCustomLocation] = useState(null);
   const [customForm, setCustomForm] = useState(EMPTY_CUSTOM_FORM);
   const [showReviewsOverview, setShowReviewsOverview] = useState(false);
 
@@ -130,29 +128,11 @@ export default function Home() {
     return result;
   }, []);
 
-  const handleStartPickingCustom = useCallback(() => {
-    setPickingHome(false);
-    setPickingCustom(true);
-  }, []);
-
-  const handlePick = useCallback(
-    (loc) => {
-      if (pickingCustom) {
-        setPickedCustomLocation(loc);
-        setPickingCustom(false);
-      } else {
-        handleSetHome(loc);
-      }
-    },
-    [pickingCustom, handleSetHome]
-  );
-
   const handleSubmitCustomCampsite = useCallback(
     async (data) => {
       const campsiteId = `custom:${data.name}`;
       await handleAddReview({ ...data, campsiteId });
       setShowAddCustom(false);
-      setPickedCustomLocation(null);
       setCustomForm(EMPTY_CUSTOM_FORM);
     },
     [handleAddReview]
@@ -238,8 +218,6 @@ export default function Home() {
   }, []);
   const handleClose = useCallback(() => setSelected(null), []);
 
-  const pickingActive = pickingHome || pickingCustom;
-
   return (
     <div className="flex h-dvh flex-col">
       <header className="border-b bg-white">
@@ -256,7 +234,6 @@ export default function Home() {
             <button
               onClick={() => {
                 setShowAddCustom(true);
-                setPickedCustomLocation(null);
                 setCustomForm(EMPTY_CUSTOM_FORM);
               }}
               className="rounded bg-zinc-900 px-2 py-1 text-xs text-white hover:bg-zinc-700"
@@ -267,10 +244,7 @@ export default function Home() {
               homeLocation={homeLocation}
               onSetHome={handleSetHome}
               pickingHome={pickingHome}
-              onTogglePicking={() => {
-                setPickingCustom(false);
-                setPickingHome((v) => !v);
-              }}
+              onTogglePicking={() => setPickingHome((v) => !v)}
             />
           </div>
         </div>
@@ -324,8 +298,8 @@ export default function Home() {
             homeLocation={homeLocation}
             selected={selected}
             onSelect={handleSelect}
-            pickingActive={pickingActive}
-            onPick={handlePick}
+            pickingActive={pickingHome}
+            onPick={handleSetHome}
             reviewedIds={reviewedIds}
           />
 
@@ -378,35 +352,18 @@ export default function Home() {
         </div>
       </div>
 
-      {showAddCustom && !pickingCustom && (
+      {showAddCustom && (
         <AddCustomCampsite
           form={customForm}
           onChangeField={handleChangeCustomField}
-          pickedLocation={pickedCustomLocation}
-          onStartPicking={handleStartPickingCustom}
           nickname={nickname}
           onRequestNickname={requestNickname}
           onSubmit={handleSubmitCustomCampsite}
           onCancel={() => {
             setShowAddCustom(false);
-            setPickedCustomLocation(null);
             setCustomForm(EMPTY_CUSTOM_FORM);
           }}
         />
-      )}
-
-      {pickingCustom && (
-        <div className="fixed inset-x-0 top-4 z-50 flex justify-center px-4">
-          <div className="flex items-center gap-3 rounded-full bg-orange-500 px-4 py-2 text-sm text-white shadow-lg">
-            지도를 클릭해서 위치를 선택하세요
-            <button
-              onClick={() => setPickingCustom(false)}
-              className="rounded-full bg-white/20 px-2 py-0.5 hover:bg-white/30"
-            >
-              취소
-            </button>
-          </div>
-        </div>
       )}
 
       {showReviewsOverview && (

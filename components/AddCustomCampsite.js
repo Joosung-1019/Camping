@@ -22,8 +22,6 @@ function Stars({ value, onChange }) {
 export default function AddCustomCampsite({
   form,
   onChangeField,
-  pickedLocation,
-  onStartPicking,
   nickname,
   onRequestNickname,
   onSubmit,
@@ -45,31 +43,29 @@ export default function AddCustomCampsite({
     setSubmitting(true);
     setError(null);
     try {
-      let lat = pickedLocation?.lat ?? null;
-      let lng = pickedLocation?.lng ?? null;
+      let lat = null;
+      let lng = null;
 
-      if (lat == null) {
-        const candidates = [
-          addr.trim(),
-          name.trim(),
-          [name.trim(), addr.trim()].filter(Boolean).join(" "),
-        ].filter(Boolean);
+      const candidates = [
+        addr.trim(),
+        name.trim(),
+        [name.trim(), addr.trim()].filter(Boolean).join(" "),
+      ].filter(Boolean);
 
-        for (const query of candidates) {
-          try {
-            const res = await fetch(`/api/geocode?query=${encodeURIComponent(query)}`);
-            const geo = await res.json();
-            if (!geo.error) {
-              lat = geo.lat;
-              lng = geo.lng;
-              break;
-            }
-          } catch {
-            // 다음 후보로 계속 시도
+      for (const query of candidates) {
+        try {
+          const res = await fetch(`/api/geocode?query=${encodeURIComponent(query)}`);
+          const geo = await res.json();
+          if (!geo.error) {
+            lat = geo.lat;
+            lng = geo.lng;
+            break;
           }
+        } catch {
+          // 다음 후보로 계속 시도
         }
-        // 끝까지 못 찾으면 좌표 없이 저장 (기록은 남고 지도엔 안 뜸)
       }
+      // 끝까지 못 찾으면 좌표 없이 저장 (기록은 남고 지도엔 안 뜸)
 
       await onSubmit({
         name: name.trim(),
@@ -124,21 +120,8 @@ export default function AddCustomCampsite({
               placeholder="경기도 가평군 ..."
             />
             <p className="mt-0.5 text-[11px] text-zinc-400">
-              저장 시 이름/주소로 위치를 자동으로 찾아요. 다르게 나오면 아래에서 직접 선택하세요.
+              저장 시 이름/주소로 위치를 자동으로 찾아서 지도에 표시해요.
             </p>
-          </div>
-
-          <div>
-            <label className="mb-1 block text-xs text-zinc-500">지도 위치 (직접 선택, 선택사항)</label>
-            <button
-              type="button"
-              onClick={onStartPicking}
-              className="w-full rounded bg-zinc-100 px-2 py-1.5 text-left text-zinc-700 hover:bg-zinc-200"
-            >
-              {pickedLocation
-                ? `📍 위치 선택됨 (${pickedLocation.lat.toFixed(4)}, ${pickedLocation.lng.toFixed(4)})`
-                : "지도에서 위치 선택하기"}
-            </button>
           </div>
 
           <div>
