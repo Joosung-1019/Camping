@@ -22,6 +22,7 @@ const KakaoMap = dynamic(() => import("@/components/KakaoMap"), {
 
 const HOME_STORAGE_KEY = "campingmap:home";
 const NICKNAME_STORAGE_KEY = "campingmap:nickname";
+const EMPTY_CUSTOM_FORM = { name: "", addr: "", rating: 5, memo: "", visitedAt: "" };
 
 export default function Home() {
   const [campsites, setCampsites] = useState([]);
@@ -61,7 +62,12 @@ export default function Home() {
   const [showAddCustom, setShowAddCustom] = useState(false);
   const [pickingCustom, setPickingCustom] = useState(false);
   const [pickedCustomLocation, setPickedCustomLocation] = useState(null);
+  const [customForm, setCustomForm] = useState(EMPTY_CUSTOM_FORM);
   const [showReviewsOverview, setShowReviewsOverview] = useState(false);
+
+  const handleChangeCustomField = useCallback((field, value) => {
+    setCustomForm((prev) => ({ ...prev, [field]: value }));
+  }, []);
 
   const toggleTag = useCallback((tagId) => {
     setActiveTags((prev) =>
@@ -147,6 +153,7 @@ export default function Home() {
       await handleAddReview({ ...data, campsiteId });
       setShowAddCustom(false);
       setPickedCustomLocation(null);
+      setCustomForm(EMPTY_CUSTOM_FORM);
     },
     [handleAddReview]
   );
@@ -250,6 +257,7 @@ export default function Home() {
               onClick={() => {
                 setShowAddCustom(true);
                 setPickedCustomLocation(null);
+                setCustomForm(EMPTY_CUSTOM_FORM);
               }}
               className="rounded bg-zinc-900 px-2 py-1 text-xs text-white hover:bg-zinc-700"
             >
@@ -370,21 +378,34 @@ export default function Home() {
         </div>
       </div>
 
-      {showAddCustom && (
-        <div className={pickingCustom ? "hidden" : ""}>
-          <AddCustomCampsite
-            pickedLocation={pickedCustomLocation}
-            pickingActive={pickingCustom}
-            onStartPicking={handleStartPickingCustom}
-            nickname={nickname}
-            onRequestNickname={requestNickname}
-            onSubmit={handleSubmitCustomCampsite}
-            onCancel={() => {
-              setShowAddCustom(false);
-              setPickingCustom(false);
-              setPickedCustomLocation(null);
-            }}
-          />
+      {showAddCustom && !pickingCustom && (
+        <AddCustomCampsite
+          form={customForm}
+          onChangeField={handleChangeCustomField}
+          pickedLocation={pickedCustomLocation}
+          onStartPicking={handleStartPickingCustom}
+          nickname={nickname}
+          onRequestNickname={requestNickname}
+          onSubmit={handleSubmitCustomCampsite}
+          onCancel={() => {
+            setShowAddCustom(false);
+            setPickedCustomLocation(null);
+            setCustomForm(EMPTY_CUSTOM_FORM);
+          }}
+        />
+      )}
+
+      {pickingCustom && (
+        <div className="fixed inset-x-0 top-4 z-50 flex justify-center px-4">
+          <div className="flex items-center gap-3 rounded-full bg-orange-500 px-4 py-2 text-sm text-white shadow-lg">
+            지도를 클릭해서 위치를 선택하세요
+            <button
+              onClick={() => setPickingCustom(false)}
+              className="rounded-full bg-white/20 px-2 py-0.5 hover:bg-white/30"
+            >
+              취소
+            </button>
+          </div>
         </div>
       )}
 

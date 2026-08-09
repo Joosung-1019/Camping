@@ -20,19 +20,16 @@ function Stars({ value, onChange }) {
 }
 
 export default function AddCustomCampsite({
+  form,
+  onChangeField,
   pickedLocation,
-  pickingActive,
   onStartPicking,
   nickname,
   onRequestNickname,
   onSubmit,
   onCancel,
 }) {
-  const [name, setName] = useState("");
-  const [addr, setAddr] = useState("");
-  const [rating, setRating] = useState(5);
-  const [memo, setMemo] = useState("");
-  const [visitedAt, setVisitedAt] = useState("");
+  const { name, addr, rating, memo, visitedAt } = form;
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
 
@@ -111,7 +108,7 @@ export default function AddCustomCampsite({
             <input
               type="text"
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => onChangeField("name", e.target.value)}
               className="w-full rounded border border-zinc-300 px-2 py-1.5"
               placeholder="예: 캠프 올모"
             />
@@ -122,7 +119,7 @@ export default function AddCustomCampsite({
             <input
               type="text"
               value={addr}
-              onChange={(e) => setAddr(e.target.value)}
+              onChange={(e) => onChangeField("addr", e.target.value)}
               className="w-full rounded border border-zinc-300 px-2 py-1.5"
               placeholder="경기도 가평군 ..."
             />
@@ -136,15 +133,9 @@ export default function AddCustomCampsite({
             <button
               type="button"
               onClick={onStartPicking}
-              className={`w-full rounded px-2 py-1.5 text-left ${
-                pickingActive
-                  ? "bg-orange-500 text-white"
-                  : "bg-zinc-100 text-zinc-700 hover:bg-zinc-200"
-              }`}
+              className="w-full rounded bg-zinc-100 px-2 py-1.5 text-left text-zinc-700 hover:bg-zinc-200"
             >
-              {pickingActive
-                ? "지도를 클릭해서 위치를 선택하세요"
-                : pickedLocation
+              {pickedLocation
                 ? `📍 위치 선택됨 (${pickedLocation.lat.toFixed(4)}, ${pickedLocation.lng.toFixed(4)})`
                 : "지도에서 위치 선택하기"}
             </button>
@@ -152,7 +143,7 @@ export default function AddCustomCampsite({
 
           <div>
             <label className="mb-1 block text-xs text-zinc-500">평점</label>
-            <Stars value={rating} onChange={setRating} />
+            <Stars value={rating} onChange={(v) => onChangeField("rating", v)} />
           </div>
 
           <div>
@@ -160,7 +151,7 @@ export default function AddCustomCampsite({
             <input
               type="date"
               value={visitedAt}
-              onChange={(e) => setVisitedAt(e.target.value)}
+              onChange={(e) => onChangeField("visitedAt", e.target.value)}
               className="w-full rounded border border-zinc-300 px-2 py-1.5"
             />
           </div>
@@ -169,7 +160,7 @@ export default function AddCustomCampsite({
             <label className="mb-1 block text-xs text-zinc-500">메모</label>
             <textarea
               value={memo}
-              onChange={(e) => setMemo(e.target.value)}
+              onChange={(e) => onChangeField("memo", e.target.value)}
               rows={3}
               className="w-full rounded border border-zinc-300 px-2 py-1.5"
               placeholder="아이들 반응, 시설 상태 등"
