@@ -15,7 +15,7 @@ export default function ReviewsOverview({ reviews, campsites, onSelectCampsite, 
   return (
     <div className="fixed inset-0 z-40 flex flex-col bg-white">
       <div className="flex items-center justify-between border-b px-4 py-3">
-        <h2 className="font-semibold">우리 가족 방문 기록 ({sorted.length}건)</h2>
+        <h2 className="font-semibold">내 방문 기록 ({sorted.length}건)</h2>
         <button onClick={onClose} className="text-zinc-400 hover:text-zinc-700" aria-label="닫기">
           ✕
         </button>

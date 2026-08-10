@@ -85,13 +85,14 @@ export default function Home() {
   }, [includeAllTypes]);
 
   useEffect(() => {
-    fetch("/api/reviews")
+    if (!nickname) return;
+    fetch(`/api/reviews?nickname=${encodeURIComponent(nickname)}`)
       .then((res) => res.json())
       .then((data) => {
         if (!data.error) setReviews(data.items || []);
       })
       .catch(() => {});
-  }, []);
+  }, [nickname]);
 
   const handleSetHome = useCallback((loc) => {
     setHomeLocation(loc);

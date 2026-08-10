@@ -3,11 +3,18 @@ import { getReviews, addReview } from "@/lib/reviews";
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const campsiteId = searchParams.get("campsiteId");
+  const nickname = searchParams.get("nickname");
 
   try {
     let reviews = await getReviews();
     if (campsiteId) {
       reviews = reviews.filter((r) => r.campsiteId === campsiteId);
+    }
+    // 닉네임이 지정되면 본인 기록만 반환 (정식 인증은 아니고, 닉네임 문자열 일치 기준)
+    if (nickname) {
+      reviews = reviews.filter((r) => r.nickname === nickname);
+    } else {
+      reviews = [];
     }
     return Response.json({ items: reviews });
   } catch (err) {
