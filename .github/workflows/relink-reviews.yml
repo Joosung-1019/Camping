@@ -1,0 +1,42 @@
+name: 리뷰 campsiteId 재연결
+
+# 야영장 데이터가 갱신되어 main에 들어오면, custom: 으로 남아있던 리뷰를
+# 새로 추가된 공식 캠핑장 id에 자동으로 다시 연결한다.
+# (Redis는 raw TCP 접속이 필요해서 Claude Code 클라우드 세션에서는 실행할 수 없고,
+#  네트워크 제약이 없는 Actions 러너에서 돌린다.)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "data/localgov-campsites.json"
+      - "scripts/relink-reviews.mjs"
+      - ".github/workflows/relink-reviews.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# 같은 Redis 키를 동시에 읽고 쓰지 않도록 한 번에 하나만 실행
+concurrency:
+  group: relink-reviews
+  cancel-in-progress: false
+
+jobs:
+  relink:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      # 스크립트는 redis 패키지만 필요하므로 devDependencies는 생략
+      - run: npm ci --omit=dev
+
+      - name: 리뷰 재연결 실행
+        env:
+          REDIS_URL: ${{ secrets.REDIS_URL }}
+        run: node scripts/relink-reviews.mjs
